@@ -95,7 +95,7 @@ class Content(ABC):
         if isinstance(other, self.__class__):
             if hasattr(self.content, "__iter__") and hasattr(other.content, "__iter__"):
                 return all(x == y for x, y in zip(self.content, other.content))
-            return bool(self.content == other.content)
+            return self.content == other.content
         return False
 
     def __ne__(self, other: Any) -> bool:
@@ -144,8 +144,7 @@ class Markdown(Content):
     def to_html(self, **kwargs: bool) -> str:
         html = md.markdown(self.content, extensions=["extra", "smarty"])
         html = f"{html}\n"
-        html = f"<div class='es-markdown'>\n{html}\n</div>"
-        return html
+        return f"<div class='es-markdown'>\n{html}\n</div>"
 
 
 class Image(Content):
@@ -290,8 +289,7 @@ class DataFramePd(Content):
             col_space=self.col_space,
             classes=self.css_classes,
         )
-        html = f"<div class='table-responsive es-table'>{html}</div>"
-        return html
+        return f"<div class='table-responsive es-table'>{html}</div>"
 
 
 class FigureMpl(Content):
@@ -414,9 +412,7 @@ class FigureBokeh(Content):
 
             temp_file = Path(options._pdf_temp_dir) / f"{uuid4()}.svg"
             export_svg(self.content, filename=str(temp_file))
-            html = f"<img src='{temp_file.name}' width='100%' height='auto'>\n"
-            return html
-
+            return f"<img src='{temp_file.name}' width='100%' height='auto'>\n"
         html, js = components(self.content)
 
         # Remove outer <div> tag so we can give our own attributes
@@ -487,8 +483,7 @@ class FigurePlotly(Content):
 def _remove_outer_div(html: str) -> str:
     """Remove outer <div> tags."""
     html = html.replace("<div>", "", 1)
-    html = "".join(html.rsplit("</div>", 1))
-    return html
+    return "".join(html.rsplit("</div>", 1))
 
 
 def _image_to_base64(image: "PILImage") -> str:
@@ -504,8 +499,7 @@ def _image_to_base64(image: "PILImage") -> str:
     """
     buffer = BytesIO()
     image.save(buffer, format="png")
-    image_encoded = base64.b64encode(buffer.getvalue()).decode("utf-8")
-    return image_encoded
+    return base64.b64encode(buffer.getvalue()).decode("utf-8")
 
 
 def _rescale_image(
@@ -540,5 +534,4 @@ def _rescale_dims(
     if ratio > 1:
         raise ValueError("Target size must be less than original size")
 
-    new_size = (int(size[0] * ratio), int(size[1] * ratio))
-    return new_size
+    return int(size[0] * ratio), int(size[1] * ratio)

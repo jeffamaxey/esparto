@@ -14,7 +14,7 @@ def get_index_where(
 
 def get_matching_titles(title: str, children: List["Child"]) -> List[int]:
     """Return child items with matching title."""
-    return get_index_where(lambda x: bool(getattr(x, "title", None) == title), children)
+    return get_index_where(lambda x: getattr(x, "title", None) == title, children)
 
 
 def clean_attr_name(attr_name: str) -> str:

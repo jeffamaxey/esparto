@@ -33,12 +33,11 @@ class BootstrapThemeCDNPicker(SimpleNamespace):
     YETI: str = '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/yeti/bootstrap.min.css" integrity="sha384-mLBxp+1RMvmQmXOjBzRjqqr0dP9VHU2tb3FK6VB0fJN/AOu7/y+CAeYeWJZ4b3ii" crossorigin="anonymous">'
 
     def __repr__(self) -> str:
-        return str(self) + f"\n{type(self)}"
+        return f"{str(self)}\n{type(self)}"
 
     def __str__(self) -> str:
         themes = "\n".join([x for x in dir(self) if not x.startswith("_")])
-        string = f"Available themes:\n{themes}"
-        return string
+        return f"Available themes:\n{themes}"
 
 
 bootstrap_cdn_themes = BootstrapThemeCDNPicker()

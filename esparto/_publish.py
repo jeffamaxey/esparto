@@ -65,9 +65,7 @@ def publish_html(
     if filepath:
         Path(filepath).write_text(html_rendered)
 
-    if return_html:
-        return html_rendered
-    return None
+    return html_rendered if return_html else None
 
 
 def publish_pdf(
@@ -108,9 +106,7 @@ def publish_pdf(
 
     html_prettified = _prettify_html(html_rendered)
 
-    if return_html:
-        return html_prettified
-    return None
+    return html_prettified if return_html else None
 
 
 def nb_display(
@@ -170,17 +166,13 @@ def nb_display(
     display(HTML(extra_css + html_rendered), metadata=dict(isolated=True))
     print()
 
-    if return_html:
-        return html_rendered
-    return None
+    return html_rendered if return_html else None
 
 
 def _prettify_html(html: Optional[str]) -> str:
     """Prettify HTML."""
     html = html or ""
-    html = str(BeautifulSoup(html, features="html.parser").prettify())
-
-    return html
+    return str(BeautifulSoup(html, features="html.parser").prettify())
 
 
 def _relocate_scripts(html: str) -> str:
@@ -193,6 +185,4 @@ def _relocate_scripts(html: str) -> str:
         for script in script_list:
             body.insert(len(body), script)
 
-    html = str(soup)
-
-    return html
+    return str(soup)

@@ -9,7 +9,7 @@ import esparto._layout as la
 
 def test_all_layout_classes_covered(layout_list_fn):
     test_classes = [type(c) for c in layout_list_fn]
-    module_classes = [c for c in la.Layout.__subclasses__()]
+    module_classes = list(la.Layout.__subclasses__())
     module_subclasses = [d.__subclasses__() for d in module_classes]
     module_all = set(list(chain.from_iterable(module_subclasses)) + module_classes)
     missing = module_all.difference(test_classes)

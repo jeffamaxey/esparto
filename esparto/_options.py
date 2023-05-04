@@ -189,7 +189,4 @@ class OptionsContext:
 
 
 def resolve_config_option(config_option: str, value: Optional[str]) -> Any:
-    if value is None:
-        return getattr(options, config_option)
-    else:
-        return value
+    return getattr(options, config_option) if value is None else value

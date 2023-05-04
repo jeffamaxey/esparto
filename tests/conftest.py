@@ -114,7 +114,7 @@ def page_layout(content_list_fn) -> la.Page:
 
 @pytest.fixture
 def page_basic_layout() -> la.Page:
-    page = la.Page(
+    return la.Page(
         title="Test Page",
         children=la.Section(
             title="Section One",
@@ -124,7 +124,6 @@ def page_basic_layout() -> la.Page:
             ),
         ),
     )
-    return page
 
 
 @pytest.fixture

@@ -29,7 +29,7 @@ if _EXTRAS:
 
     def test_all_content_classes_covered(content_list_fn):
         test_classes = {type(c) for c in content_list_fn}
-        module_classes = {c for c in co.Content.__subclasses__()}
+        module_classes = set(co.Content.__subclasses__())
         module_subclasses = [d.__subclasses__() for d in module_classes]
         module_all = set(chain.from_iterable(module_subclasses)) | module_classes
         missing = module_all.difference(test_classes)

@@ -114,21 +114,18 @@ class Layout(ABC):
         return not self.__eq__(other)
 
     def __getattribute__(self, key: str) -> Any:
-        child_id = super().__getattribute__("_child_ids").get(key)
-        if child_id:
+        if child_id := super().__getattribute__("_child_ids").get(key):
             return self.__getitem__(child_id)
         return super().__getattribute__(key)
 
     def __setattr__(self, key: str, value: Any) -> None:
-        child_id = super().__getattribute__("_child_ids").get(key)
-        if child_id:
+        if child_id := super().__getattribute__("_child_ids").get(key):
             self.__setitem__(child_id, value)
         else:
             super().__setattr__(key, value)
 
     def __delattr__(self, key: str) -> None:
-        child_id = super().__getattribute__("_child_ids").get(key)
-        if child_id:
+        if child_id := super().__getattribute__("_child_ids").get(key):
             self.__delitem__(child_id)
         else:
             super().__delattr__(key)
@@ -167,8 +164,7 @@ class Layout(ABC):
         if isinstance(key, str):
             if key:
                 value.title = title or key
-                indexes = get_matching_titles(key, self.children)
-                if indexes:
+                if indexes := get_matching_titles(key, self.children):
                     self.children[indexes[0]] = value
                 else:
                     self.children.append(value)
@@ -194,8 +190,7 @@ class Layout(ABC):
                 del self.children[indexes[0]]
                 return None
         elif isinstance(key, int) and key < len(self.children):
-            child_title = getattr(self.children[key], "title", None)
-            if child_title:
+            if child_title := getattr(self.children[key], "title", None):
                 self._remove_child_id(child_title)
             del self.children[key]
             return None
@@ -272,8 +267,7 @@ class Layout(ABC):
         other = copy.copy(other)
         self.children = [*self._smart_wrap(other)]
         for child in self.children:
-            title = getattr(child, "title", None)
-            if title:
+            if title := getattr(child, "title", None):
                 self._add_child_id(title)
 
     def to_html(self, **kwargs: bool) -> str:
@@ -314,8 +308,7 @@ class Layout(ABC):
     # ------------------------------------------------------------------------+
 
     def _add_child_id(self, key: str) -> None:
-        attr_name = clean_attr_name(key)
-        if attr_name:
+        if attr_name := clean_attr_name(key):
             self._child_ids[attr_name] = key
             super().__setattr__(attr_name, self[key])
 
@@ -363,7 +356,7 @@ class Layout(ABC):
         child_list = clean_iterator(child_list)
 
         if isinstance(self, Column):
-            if any([isinstance(x, dict) for x in child_list]):
+            if any(isinstance(x, dict) for x in child_list):
                 raise TypeError("Invalid content passed to Column: 'dict'")
             return [content_adaptor(x) for x in child_list]
 
@@ -378,19 +371,16 @@ class Layout(ABC):
                 if unwrapped_acc:
                     wrapped_segment = self._child_class(children=unwrapped_acc)
                     output.append(wrapped_segment)
-                    output.append(child)
                     unwrapped_acc = []
+                output.append(child)
+            elif is_row:
+                if isinstance(child, dict):
+                    title, child = list(child.items())[0]
                 else:
-                    output.append(child)
-            else:  # if not is_wrapped
-                if is_row:
-                    if isinstance(child, dict):
-                        title, child = list(child.items())[0]
-                    else:
-                        title = None
-                    output.append(self._child_class(title=title, children=[child]))
-                else:
-                    unwrapped_acc.append(child)
+                    title = None
+                output.append(self._child_class(title=title, children=[child]))
+            else:
+                unwrapped_acc.append(child)
 
         if unwrapped_acc:
             wrapped_segment = self._child_class(children=unwrapped_acc)
@@ -400,7 +390,7 @@ class Layout(ABC):
 
     def _recurse_children(self, idx: int) -> Dict[str, Any]:
         key = self.title or f"{type(self).__name__} {idx}"
-        tree = {
+        return {
             f"{key}": [
                 child._recurse_children(idx)  # type: ignore
                 if hasattr(child, "_recurse_children")
@@ -408,7 +398,6 @@ class Layout(ABC):
                 for idx, child in enumerate(self.children)
             ]
         }
-        return tree
 
     def _required_dependencies(self) -> Set[str]:
         deps: Set[str] = self._dependencies
@@ -500,9 +489,7 @@ class Page(Layout):
             dependency_source=dependency_source,
         )
 
-        if return_html:
-            return html
-        return None
+        return html if return_html else None
 
     def save_html(
         self,
@@ -529,9 +516,7 @@ class Page(Layout):
                 return_html=return_html,
                 dependency_source=dependency_source,
             )
-            if return_html:
-                return html
-            return None
+            return html if return_html else None
 
     def save_pdf(
         self, filepath: str = "./esparto-doc.pdf", return_html: bool = False
@@ -552,9 +537,7 @@ class Page(Layout):
         """
         with OptionsContext(self.output_options):
             html = publish_pdf(self, filepath, return_html=return_html)
-            if return_html:
-                return html
-            return None
+            return html if return_html else None
 
     def to_html(self, **kwargs: bool) -> str:
         with OptionsContext(self.output_options):
@@ -882,15 +865,13 @@ class Card(Column):
             f"\n{title_rendered}\n{children_rendered}\n",
             f"{self.get_identifier()}-body",
         )
-        html_full = render_html(
+        return render_html(
             self.body_html_tag,
             self.body_classes,
             self.body_styles,
             f"\n{html_body}\n",
             f"{self.get_identifier()}",
         )
-
-        return html_full
 
 
 class Spacer(Column):
